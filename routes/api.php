@@ -2,4 +2,4 @@
 
 use App\Http\Controllers\Api\SensorController;
 
-Route::post('/sensors', [SensorController::class, 'store']);
+Route::post('/sensor', [SensorController::class, 'store']);
