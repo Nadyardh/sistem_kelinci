@@ -88,11 +88,14 @@
                     </div>
                 </div>
 
-                <div class="card metric-card p-3" style="background: linear-gradient(180deg,#fff, var(--pastel-1))">
-                    <div class="muted-small">Status Stress Kelinci</div>
-                    <div class="mt-2">
-                        <p class="mb-1">THI Index: <strong>{{ $thi ? round($thi, 2) : 'N/A' }}</strong></p>
-                        <p class="mb-0"><span class="badge bg-primary">{{ $status }}</span></p>
+                <div class="card metric-card p-3 mb-3" style="background: linear-gradient(180deg,var(--pastel-2), #fff)">
+                    <div class="d-flex align-items-center">
+                        <div class="me-3 display-6 text-info"><i class="bi bi-clipboard-data"></i></div>
+                        <div>
+                            <div class="muted-small">THI Index</div>
+                            <div class="metric-value">{{ $thi ? round($thi, 2) : 'N/A' }}</div>
+                            <p class="mb-0"><span class="badge bg-primary">{{ $status }}</span></p>
+                        </div>
                     </div>
                 </div>
             </div>
