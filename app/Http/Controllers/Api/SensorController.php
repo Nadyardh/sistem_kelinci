@@ -14,7 +14,7 @@ class SensorController extends Controller
         $humidity = $request->humidity;
 
         // Hitung THI sederhana
-        $thi = $temperature - ((0.55 - 0.0055 * $humidity) * ($temperature - 14.5));
+        $thi = $temperature - ((0.31 - 0.31 * $humidity/100) * ($temperature - 14.4));
 
         // Klasifikasi
         if ($thi < 27) {
