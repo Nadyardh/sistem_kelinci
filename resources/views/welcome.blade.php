@@ -53,24 +53,35 @@
                 <div class="col-md-1">
                     <img src="https://i.ibb.co.com/SXR6jNw2/Logo-Web.jpg" alt="Rabbit Icon" width="100%" height="100%">
                 </div>
-                <div class="col-md-10">
+                <div class="col-md-8">
                     <h2 class="mb-1">Sistem Kandang Kelinci — Dashboard</h2>
                     <p class="mb-0 muted-small">Visualisasi suhu & kelembapan lingkungan. Siap dihubungkan ke cloud dan model AI.</p>
                 </div>
-                <div class="col-md-1 text-md-end mt-3 mt-md-0">
-                    <small class="text-muted">Status koneksi:</small>
-                    <div class="d-inline-block ms-2 badge bg-light text-dark border">Local only</div>
+                <div class="col-md-3 text-md-end mt-3 mt-md-0">
+                    {{-- <small class="text-muted">Tanggal & Waktu:</small>
+                    <div id="realtimeClock" class="">Memuat...</div> --}}
                 </div>
             </div>
         </div>
 
         <div class="row g-4">
             <div class="col-lg-4">
+                <div class="card metric-card p-3 mb-3" style="background: linear-gradient(180deg,var(--pastel-3), #ffc2c2)">
+                    <div class="d-flex align-items-center">
+                        <div class="me-3 display-6 text-danger"><i class="bi bi-clock"></i></div>
+                        <div>
+                            <small class="text-muted">Tanggal & Waktu:</small>
+                            <div id="realtimeClock" class="">Memuat...</div>
+                        </div>
+                    </div>
+                </div>
+
+
                 <div class="card metric-card p-3 mb-3" style="background: linear-gradient(180deg,var(--pastel-3), #fff)">
                     <div class="d-flex align-items-center">
                         <div class="me-3 display-6 text-warning"><i class="bi bi-thermometer-sun"></i></div>
                         <div>
-                            <div class="muted-small">Suhu Lingkungan</div>
+                            <div class=""><h5>Suhu Lingkungan</h5></div>
                             <div class="metric-value">{{ $suhu }}°C</div>
                             <div class="muted-small">Sensor terakhir: {{ $last_update }}</div>
                         </div>
@@ -81,18 +92,18 @@
                     <div class="d-flex align-items-center">
                         <div class="me-3 display-6 text-info"><i class="bi bi-moisture"></i></div>
                         <div>
-                            <div class="muted-small">Kelembapan</div>
+                            <div class=""><h5>Kelembapan</h5></div>
                             <div class="metric-value">{{ $kelembapan }}%</div>
-                            <div class="muted-small">Sensor lokasi: {{ $sensor_location }}</div>
+                            <div class="muted-small">Sensor terakhir: {{ $last_update }}</div>
                         </div>
                     </div>
                 </div>
 
-                <div class="card metric-card p-3 mb-3" style="background: linear-gradient(180deg,var(--pastel-2), #fff)">
+                <div class="card metric-card p-3 mb-3" style="background: linear-gradient(180deg,var(--pastel-1), #c1e3ff)">
                     <div class="d-flex align-items-center">
                         <div class="me-3 display-6 text-info"><i class="bi bi-clipboard-data"></i></div>
                         <div>
-                            <div class="muted-small">THI Index</div>
+                            <div class=""><h4>THI Index</h4></div>
                             <div class="metric-value">{{ $thi ? round($thi, 2) : 'N/A' }}</div>
                             <p class="mb-0"><span class="badge bg-primary">{{ $status }}</span></p>
                         </div>
@@ -149,6 +160,18 @@
                             @endif
                         </ul>
                     </div>
+                    <div class="mt-3">
+                        <div class="d-flex justify-content-between mb-2">
+                            <h6 class="mb-0">Interaksi Pengguna (Chat)</h6>
+
+                            <button
+                                class="btn btn-sm btn-primary"
+                                id="askAI">
+                                <i class="bi bi-stars"></i>
+                                Saran AI
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -183,13 +206,72 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
     <script>
-        // Small demo JS to show local chat interactions and autofill AI conclusion
+        // Small demo JS to show local chat interactions and realtime clock in header
         (function(){
             const chatForm = document.getElementById('chatForm');
             const chatInput = document.getElementById('chatInput');
             const messages = document.getElementById('messages');
-            const btnAutofill = document.getElementById('btn-autofill');
-            const aiConclusion = document.getElementById('ai_conclusion');
+            const clock = document.getElementById('realtimeClock');
+            const askAI = document.getElementById('askAI');
+
+            function formatDateTime(date) {
+                return date.toLocaleString('id-ID', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit'
+                });
+            }
+
+            function refreshClock() {
+                if(clock) {
+                    clock.textContent = formatDateTime(new Date());
+                }
+            }
+
+
+            askAI.addEventListener('click', async function () {
+
+                appendMessage(
+                    'Mohon tunggu, AI sedang menganalisa kondisi kandang...',
+                    'ai'
+                );
+
+                try {
+
+                    const response = await fetch(
+                        '/ai-recommendation',
+                        {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type':
+                                    'application/json',
+                                'X-CSRF-TOKEN':
+                                    '{{ csrf_token() }}'
+                            }
+                        }
+                    );
+
+                    const data = await response.json();
+
+                    appendMessage(
+                        data.recommendation,
+                        'ai'
+                    );
+
+                } catch(error) {
+
+                    appendMessage(
+                        'Gagal mengambil saran AI.',
+                        'ai'
+                    );
+
+                    console.error(error);
+                }
+            });
 
             function appendMessage(content, who){
                 const wrapper = document.createElement('div');
@@ -201,7 +283,7 @@
                 msg.className = who === 'user' ? 'msg-user mt-1' : 'msg-ai mt-1';
                 msg.innerHTML = content;
                 wrapper.appendChild(small);
-                if(who === 'user') wrapper.className = 'text-end mb-2'; else wrapper.className = 'mb-2';
+                wrapper.className = who === 'user' ? 'text-end mb-2' : 'mb-2';
                 wrapper.appendChild(msg);
                 messages.appendChild(wrapper);
                 messages.scrollTop = messages.scrollHeight;
@@ -218,9 +300,8 @@
                 }, 800);
             });
 
-            btnAutofill.addEventListener('click', function(){
-                aiConclusion.value = 'Suhu terlampau tinggi. Disarankan menyalakan exhaust fan dan meningkatkan ventilasi. Monitor setiap 15 menit.';
-            });
+            refreshClock();
+            setInterval(refreshClock, 1000);
         })();
     </script>
 </body>
