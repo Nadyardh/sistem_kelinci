@@ -257,19 +257,29 @@
 
                     const data = await response.json();
 
-                    appendMessage(
-                        data.recommendation,
-                        'ai'
-                    );
+                    if (!response.ok || !data.success) {
+                        throw new Error(data.message || 'Gagal mengambil rekomendasi dari AI');
+                    }
+
+                    let message = '<strong>Rekomendasi AI:</strong><br>' + data.recommendation;
+
+                    if (data.sensor_data) {
+                        message += '<br><br><small class="text-muted">Data: ' +
+                                   data.sensor_data.temperature + '°C, ' +
+                                   data.sensor_data.humidity + '% — ' +
+                                   data.sensor_data.updated_at + '</small>';
+                    }
+
+                    appendMessage(message, 'ai');
 
                 } catch(error) {
 
                     appendMessage(
-                        'Gagal mengambil saran AI.',
+                        '❌ Gagal: ' + error.message,
                         'ai'
                     );
 
-                    console.error(error);
+                    console.error('AI Error:', error);
                 }
             });
 
