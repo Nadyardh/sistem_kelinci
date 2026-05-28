@@ -258,7 +258,7 @@
                     const data = await response.json();
 
                     if (!response.ok || !data.success) {
-                        throw new Error(data.message || 'Gagal mengambil rekomendasi dari AI');
+                        throw new Error(data.error || data.message || 'Gagal mengambil rekomendasi dari AI');
                     }
 
                     let message = '<strong>Rekomendasi AI:</strong><br>' + data.recommendation;

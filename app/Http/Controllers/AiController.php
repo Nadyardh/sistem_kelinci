@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Sensor;
 use Illuminate\Http\Request;
 use OpenAI\Laravel\Facades\OpenAI;
-use Exception;
 
 class AiController extends Controller
 {
@@ -23,17 +22,19 @@ class AiController extends Controller
         try {
             $prompt = "Anda adalah asisten kesehatan kelinci.
 
-Data kandang:
-- Suhu: {$latestSensor->temperature}°C
-- Kelembapan: {$latestSensor->humidity}%
-- THI: " . round($latestSensor->thi, 2) . "
-- Status: {$latestSensor->status}
+            Data kandang:
+            - Suhu: {$latestSensor->temperature}°C
+            - Kelembapan: {$latestSensor->humidity}%
+            - THI: " . round($latestSensor->thi, 2) . "
+            - Status: {$latestSensor->status}
 
-Berikan rekomendasi singkat maksimal 3 poin.
-Gunakan bahasa Indonesia yang mudah dipahami peternak.";
+            Berikan rekomendasi singkat maksimal 3 poin.
+            Gunakan bahasa Indonesia yang mudah dipahami peternak.";
+
+            $model = $this->resolveOpenAIModel();
 
             $response = OpenAI::chat()->create([
-                'model' => env('OPENAI_MODEL', 'gpt-4-mini'),
+                'model' => $model,
                 'messages' => [
                     [
                         'role' => 'system',
@@ -44,17 +45,19 @@ Gunakan bahasa Indonesia yang mudah dipahami peternak.";
                         'content' => $prompt
                     ]
                 ],
-                'max_tokens' => 200,
-                'temperature' => 0.7
+                'max_completion_tokens' => 200,
+                'temperature' => 1
             ]);
 
-            if (!isset($response->choices[0]->message->content)) {
-                throw new Exception('Response format tidak valid dari OpenAI');
+            $recommendation = $response->choices[0]->message->content ?? '';
+
+            if (!trim($recommendation)) {
+                throw new \Exception('Rekomendasi AI kosong dari model ' . $model);
             }
 
             return response()->json([
                 'success' => true,
-                'recommendation' => $response->choices[0]->message->content,
+                'recommendation' => trim($recommendation),
                 'sensor_data' => [
                     'temperature' => $latestSensor->temperature,
                     'humidity' => $latestSensor->humidity,
@@ -64,7 +67,7 @@ Gunakan bahasa Indonesia yang mudah dipahami peternak.";
                 ]
             ]);
 
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             \Log::error('OpenAI API Error: ' . $e->getMessage());
 
             return response()->json([
@@ -73,5 +76,21 @@ Gunakan bahasa Indonesia yang mudah dipahami peternak.";
                 'error' => env('APP_DEBUG') ? $e->getMessage() : 'Internal server error'
             ], 500);
         }
+    }
+
+    private function resolveOpenAIModel(): string
+    {
+        $model = env('OPENAI_MODEL', 'gpt-5.4-mini');
+
+        $unsupportedModels = [
+            'gpt-5-mini',
+            'gpt-5-mini-2025-08-07',
+        ];
+
+        if (in_array($model, $unsupportedModels, true)) {
+            return 'gpt-5.4-mini';
+        }
+
+        return $model;
     }
 }
