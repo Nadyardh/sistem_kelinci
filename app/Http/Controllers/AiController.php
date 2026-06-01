@@ -28,7 +28,7 @@ class AiController extends Controller
             - THI: " . round($latestSensor->thi, 2) . "
             - Status: {$latestSensor->status}
 
-            Berikan rekomendasi singkat maksimal 3 poin.
+            Berikan beberapa rekomendasi detail berdasarkan data yang diterima.
             Gunakan bahasa Indonesia yang mudah dipahami peternak.";
 
             $model = $this->resolveOpenAIModel();
