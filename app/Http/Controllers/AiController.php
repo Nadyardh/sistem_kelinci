@@ -48,7 +48,7 @@ class AiController extends Controller
                         'content' => $prompt
                     ]
                 ],
-                'max_tokens' => 10000,
+                'max_completion_tokens' => 10000,
                 'temperature' => 0.7
             ]);
 
