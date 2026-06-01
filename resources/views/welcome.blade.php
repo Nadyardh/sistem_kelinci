@@ -261,7 +261,10 @@
                         throw new Error(data.error || data.message || 'Gagal mengambil rekomendasi dari AI');
                     }
 
-                    let message = '<strong>Rekomendasi AI:</strong><br>' + data.recommendation;
+                    // Prefer HTML-rendered recommendation from backend; fallback to plain text
+                    const recHtml = data.recommendation_html || data.recommendation || '';
+
+                    let message = '<strong>Rekomendasi AI:</strong><br>' + recHtml;
 
                     if (data.sensor_data) {
                         message += '<br><br><small class="text-muted">Data: ' +
