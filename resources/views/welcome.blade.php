@@ -31,6 +31,7 @@
             border: none;
             border-radius: var(--card-radius);
             box-shadow: 0 8px 30px rgba(13, 38, 59, 0.06);
+            height: 100%;
         }
         .metric-value{
             font-size: 2.25rem;
@@ -41,6 +42,23 @@
         .msg-user{background: #fff4f0; padding:8px 12px; border-radius:12px; display:inline-block}
         .msg-ai{background: #f0f9ff; padding:8px 12px; border-radius:12px; display:inline-block}
         .form-floating textarea{min-height:110px}
+        .status-column{
+            display: flex;
+            flex-direction: column;
+        }
+        .status-column .recommendation-card{
+            flex: 1;
+        }
+        .chat-card{
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        .chat-card .messages-box{
+            flex: 1;
+            height: auto;
+            min-height: 260px;
+        }
         @media (max-width:767px){
             .metric-value{font-size:1.6rem}
         }
@@ -48,6 +66,8 @@
 </head>
 <body>
     <div class="container my-5">
+
+        {{-- //Ini Header --}}
         <div class="app-header mb-4">
             <div class="row align-items-center">
                 <div class="col-md-1">
@@ -64,20 +84,21 @@
             </div>
         </div>
 
-        <div class="row g-4">
-            <div class="col-lg-4">
-                <div class="card metric-card p-3 mb-3" style="background: linear-gradient(180deg,var(--pastel-3), #ffc2c2)">
+        {{-- //Ini Data --}}
+        <div class="row mb-4 g-4 align-items-stretch">
+            <div class="col-lg-3">
+                <div class="card metric-card p-3" style="background: linear-gradient(180deg,var(--pastel-3), #ffc2c2)">
                     <div class="d-flex align-items-center">
-                        <div class="me-3 display-6 text-danger"><i class="bi bi-clock"></i></div>
+                        <div class="me-3 mt-4 display-6 text-danger"><i class="bi bi-clock"></i></div>
                         <div>
-                            <small class="text-muted">Tanggal & Waktu:</small>
-                            <div id="realtimeClock" class="">Memuat...</div>
+                            <div class=""><h5>Tanggal & Waktu</h5></div>
+                            <h5 id="realtimeClock" class="mt-3">Memuat...</h5>
                         </div>
                     </div>
                 </div>
-
-
-                <div class="card metric-card p-3 mb-3" style="background: linear-gradient(180deg,var(--pastel-3), #fff)">
+            </div>
+            <div class="col-lg-3">
+                <div class="card metric-card p-3" style="background: linear-gradient(180deg,var(--pastel-3), #fff)">
                     <div class="d-flex align-items-center">
                         <div class="me-3 display-6 text-warning"><i class="bi bi-thermometer-sun"></i></div>
                         <div>
@@ -87,8 +108,9 @@
                         </div>
                     </div>
                 </div>
-
-                <div class="card metric-card p-3 mb-3" style="background: linear-gradient(180deg,var(--pastel-2), #fff)">
+            </div>
+            <div class="col-lg-3">
+                <div class="card metric-card p-3" style="background: linear-gradient(180deg,var(--pastel-2), #fff)">
                     <div class="d-flex align-items-center">
                         <div class="me-3 display-6 text-info"><i class="bi bi-moisture"></i></div>
                         <div>
@@ -98,8 +120,9 @@
                         </div>
                     </div>
                 </div>
-
-                <div class="card metric-card p-3 mb-3" style="background: linear-gradient(180deg,var(--pastel-1), #c1e3ff)">
+            </div>
+            <div class="col-lg-3">
+                <div class="card metric-card p-3" style="background: linear-gradient(180deg,var(--pastel-1), #c1e3ff)">
                     <div class="d-flex align-items-center">
                         <div class="me-3 display-6 text-info"><i class="bi bi-clipboard-data"></i></div>
                         <div>
@@ -110,8 +133,11 @@
                     </div>
                 </div>
             </div>
+        </div>
 
-            <div class="col-lg-4">
+        {{-- Ini status kelinci --}}
+        <div class="row g-4 align-items-stretch">
+            <div class="col-lg-6 status-column">
                 <div class="card p-3 mb-3">
                     <div class="d-flex justify-content-between align-items-center mb-2">
                         <h6 class="mb-0">Status Kelinci</h6>
@@ -137,8 +163,9 @@
                         @endif
                     </div>
                 </div>
-
-                <div class="card p-3">
+            </div>
+            <div class="col-lg-6">
+                <div class="card p-3 recommendation-card">
                     <h6>Rekomendasi Sistem</h6>
                     <div class="mt-2">
                         <ul class="list-unstyled">
@@ -160,9 +187,13 @@
                             @endif
                         </ul>
                     </div>
-                    <div class="mt-3">
+                </div>
+            </div>
+        </div>
+
+            <div class="card p-3 chat-card">
                         <div class="d-flex justify-content-between mb-2">
-                            <h6 class="mb-0">Interaksi Pengguna (Chat)</h6>
+                            <h6 class="mb-0">Chat dengan AI</h6>
 
                             <button
                                 class="btn btn-sm btn-primary"
@@ -171,17 +202,10 @@
                                 Saran AI
                             </button>
                         </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-lg-4">
-                <div class="card p-3 mb-3">
-                    <h6 class="mb-2">Interaksi Pengguna (Chat)</h6>
-                    <div class="messages-box mb-3" id="messages">
-                        <div class="mb-2"><small class="text-muted">01:23</small><div class="mt-1 msg-ai">Halo, apa yang bisa saya bantu?</div></div>
+                        <div class="messages-box mb-3" id="messages">
+                        {{-- <div class="mb-2"><small class="text-muted">01:23</small><div class="mt-1 msg-ai">Halo, apa yang bisa saya bantu?</div></div>
                         <div class="mb-2 text-end"><small class="text-muted">01:24</small><div class="mt-1 msg-user">Berikan saya saran untuk mendinginkan kelinci?</div></div>
-                        <div class="mb-2"><small class="text-muted">01:24</small><div class="mt-1 msg-ai">Anda bisa memasang kipas angin di kandang untuk meningkatkan sirkulasi udara.</div></div>
+                        <div class="mb-2"><small class="text-muted">01:24</small><div class="mt-1 msg-ai">Anda bisa memasang kipas angin di kandang untuk meningkatkan sirkulasi udara.</div></div> --}}
                     </div>
 
                     <form id="chatForm">
@@ -190,19 +214,13 @@
                             <button class="btn btn-primary" type="submit">Kirim</button>
                         </div>
                     </form>
-                </div>
-
-                <div class="card p-3">
-                    <h6 class="mb-2">Aksi Cepat</h6>
-                    <div class="d-grid gap-2">
-                        <button class="btn btn-outline-danger">Nyalakan Exhaust Fan</button>
-                        <button class="btn btn-outline-success">Aktifkan Mister</button>
-                        <button class="btn btn-outline-secondary">Matikan Semua</button>
-                    </div>
-                </div>
             </div>
         </div>
+
     </div>
+
+
+
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
     <script>
