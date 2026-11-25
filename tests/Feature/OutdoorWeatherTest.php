@@ -43,6 +43,10 @@ class OutdoorWeatherTest extends TestCase
 
         $this->get('/')
             ->assertOk()
+            ->assertSee('Informasi Data Lama')
+            ->assertSee('Informasi Data Terbaru')
+            ->assertSee('Data Kandang')
+            ->assertSee('Data Lingkungan')
             ->assertSee('31,2°C')
             ->assertSee('68,5%')
             ->assertSee('hujan ringan')

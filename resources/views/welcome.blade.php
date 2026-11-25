@@ -33,6 +33,127 @@
             box-shadow: 0 8px 30px rgba(13, 38, 59, 0.06);
             height: 100%;
         }
+        .section-heading{
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            gap:1rem;
+            margin-bottom:1rem;
+        }
+        .section-kicker{
+            color:#7c82a3;
+            font-size:.72rem;
+            font-weight:700;
+            letter-spacing:.12em;
+            margin:0 0 .25rem;
+            text-transform:uppercase;
+        }
+        .section-title{
+            color:#344054;
+            font-size:1.25rem;
+            font-weight:700;
+            margin:0;
+        }
+        .section-badge{
+            align-items:center;
+            background:rgba(255,255,255,.72);
+            border:1px solid rgba(148,163,184,.18);
+            border-radius:999px;
+            color:#667085;
+            display:inline-flex;
+            font-size:.8rem;
+            gap:.45rem;
+            padding:.5rem .75rem;
+            white-space:nowrap;
+        }
+        .data-panel{
+            border:1px solid rgba(148,163,184,.18);
+            border-radius:18px;
+            box-shadow:0 8px 24px rgba(35,47,82,.06);
+            height:100%;
+            padding:1.15rem;
+            transition:transform .18s ease, box-shadow .18s ease;
+        }
+        .data-panel:hover{
+            box-shadow:0 12px 28px rgba(35,47,82,.1);
+            transform:translateY(-2px);
+        }
+        .data-panel--peach{background:linear-gradient(145deg,#fff0e8,#fffaf7)}
+        .data-panel--mint{background:linear-gradient(145deg,#e7faf2,#fbfffd)}
+        .data-panel--lavender{background:linear-gradient(145deg,#f1edff,#fcfbff)}
+        .data-panel--blue{background:linear-gradient(145deg,#eaf5ff,#fbfdff)}
+        .data-panel--rose{background:linear-gradient(145deg,#fff0f3,#fffafb)}
+        .data-panel-header{
+            align-items:center;
+            display:flex;
+            gap:.85rem;
+            margin-bottom:1rem;
+        }
+        .data-icon{
+            align-items:center;
+            background:rgba(255,255,255,.78);
+            border:1px solid rgba(255,255,255,.9);
+            border-radius:14px;
+            display:flex;
+            flex:0 0 46px;
+            height:46px;
+            justify-content:center;
+            width:46px;
+        }
+        .data-icon--peach{color:#d97745}
+        .data-icon--mint{color:#289875}
+        .data-icon--lavender{color:#7664c8}
+        .data-icon--blue{color:#4386c3}
+        .data-icon--rose{color:#c75d7a}
+        .data-label{
+            color:#667085;
+            font-size:.88rem;
+            font-weight:600;
+            margin-bottom:.2rem;
+        }
+        .data-value{
+            color:#344054;
+            font-size:1.85rem;
+            font-weight:700;
+            letter-spacing:-.04em;
+            line-height:1.15;
+            overflow-wrap:anywhere;
+        }
+        .data-value--compact{font-size:1.25rem;letter-spacing:-.02em}
+        .data-helper{color:#7b8498;font-size:.78rem;margin-top:.4rem}
+        .data-status{
+            background:rgba(118,100,200,.12);
+            border-radius:999px;
+            color:#6655b2;
+            display:inline-block;
+            font-size:.75rem;
+            font-weight:700;
+            margin-top:.55rem;
+            padding:.35rem .65rem;
+        }
+        .source-panel{
+            border:1px solid rgba(148,163,184,.18);
+            border-radius:18px;
+            height:100%;
+            padding:1.15rem;
+        }
+        .source-panel--indoor{background:linear-gradient(145deg,#fff4ed,#fffdfb)}
+        .source-panel--outdoor{background:linear-gradient(145deg,#eef5ff,#fcfdff)}
+        .source-values{
+            display:grid;
+            gap:.65rem;
+            grid-template-columns:repeat(2,minmax(0,1fr));
+        }
+        .source-value{
+            background:rgba(255,255,255,.74);
+            border:1px solid rgba(255,255,255,.9);
+            border-radius:13px;
+            min-width:0;
+            padding:.75rem;
+        }
+        .source-value-label{color:#7b8498;display:block;font-size:.76rem;margin-bottom:.2rem}
+        .source-value strong{color:#344054;font-size:1.05rem;overflow-wrap:anywhere}
+        .source-value--wide{grid-column:1/-1}
         .metric-value{
             font-size: 2.25rem;
             font-weight: 700;
@@ -77,6 +198,10 @@
         .chat-scroll-latest[hidden]{display:none}
         @media (max-width:767px){
             .metric-value{font-size:1.6rem}
+            .section-heading{align-items:flex-start;flex-direction:column}
+            .data-panel{padding:1rem}
+            .source-panel{padding:1rem}
+            .data-value{font-size:1.6rem}
         }
     </style>
 </head>
@@ -100,56 +225,65 @@
             </div>
         </div>
 
-        {{-- Informasi Data Lama --}}
-        <div class="row mb-4 g-4 align-items-stretch">
+        <section class="mb-4" aria-labelledby="oldDataHeading">
+            <div class="section-heading">
+                <div>
+                    <p class="section-kicker">Pemantauan Kandang</p>
+                    <h3 class="section-title" id="oldDataHeading">Informasi Data Lama</h3>
+                </div>
+                <span class="section-badge"><i class="bi bi-broadcast-pin"></i> Data sensor kandang</span>
+            </div>
+            <div class="row g-3 align-items-stretch">
             <div class="col-lg-3">
-                <div class="card metric-card p-3" style="background: linear-gradient(180deg,var(--pastel-3), #ffc2c2)">
-                    <div class="d-flex align-items-center">
-                        <div class="me-3 mt-4 display-6 text-danger"><i class="bi bi-clock"></i></div>
+                <article class="data-panel data-panel--lavender">
+                    <div class="data-panel-header">
+                        <div class="data-icon data-icon--lavender"><i class="bi bi-clock-history fs-4"></i></div>
                         <div>
-                            <div class=""><h5>Tanggal & Waktu</h5></div>
-                            <h5 id="realtimeClock" class="mt-3">Memuat...</h5>
+                            <div class="data-label">Tanggal & waktu</div>
+                            <div class="data-value data-value--compact" id="realtimeClock">Memuat...</div>
+                            <div class="data-helper">Waktu lokal dashboard</div>
                         </div>
                     </div>
-                </div>
+                </article>
             </div>
             <div class="col-lg-3">
-                <div class="card metric-card p-3" style="background: linear-gradient(180deg,var(--pastel-3), #fff)">
-                    <div class="d-flex align-items-center">
-                        <div class="me-3 display-6 text-warning"><i class="bi bi-thermometer-sun"></i></div>
+                <article class="data-panel data-panel--peach">
+                    <div class="data-panel-header">
+                        <div class="data-icon data-icon--peach"><i class="bi bi-thermometer-half fs-4"></i></div>
                         <div>
-                            <div class=""><h5>Suhu Kandang</h5></div>
-                            <div class="metric-value">{{ $suhu }}°C</div>
-                            <div class="muted-small">Sensor terakhir: {{ $last_update }}</div>
+                            <div class="data-label">Suhu kandang</div>
+                            <div class="data-value">{{ number_format($suhu, 1, ',', '.') }}°C</div>
+                            <div class="data-helper">Sensor {{ $last_update }}</div>
                         </div>
                     </div>
-                </div>
+                </article>
             </div>
             <div class="col-lg-3">
-                <div class="card metric-card p-3" style="background: linear-gradient(180deg,var(--pastel-2), #fff)">
-                    <div class="d-flex align-items-center">
-                        <div class="me-3 display-6 text-info"><i class="bi bi-moisture"></i></div>
+                <article class="data-panel data-panel--mint">
+                    <div class="data-panel-header">
+                        <div class="data-icon data-icon--mint"><i class="bi bi-moisture fs-4"></i></div>
                         <div>
-                            <div class=""><h5>Kelembapan Kandang</h5></div>
-                            <div class="metric-value">{{ $kelembapan }}%</div>
-                            <div class="muted-small">Sensor terakhir: {{ $last_update }}</div>
+                            <div class="data-label">Kelembapan kandang</div>
+                            <div class="data-value">{{ number_format($kelembapan, 1, ',', '.') }}%</div>
+                            <div class="data-helper">Sensor {{ $last_update }}</div>
                         </div>
                     </div>
-                </div>
+                </article>
             </div>
             <div class="col-lg-3">
-                <div class="card metric-card p-3" style="background: linear-gradient(180deg,var(--pastel-1), #c1e3ff)">
-                    <div class="d-flex align-items-center">
-                        <div class="me-3 display-6 text-info"><i class="bi bi-clipboard-data"></i></div>
+                <article class="data-panel data-panel--blue">
+                    <div class="data-panel-header">
+                        <div class="data-icon data-icon--blue"><i class="bi bi-clipboard-data fs-4"></i></div>
                         <div>
-                            <div class=""><h4>THI Kandang</h4></div>
-                            <div class="metric-value">{{ $thi ? round($thi, 2) : 'N/A' }}</div>
-                            <p class="mb-0"><span class="badge bg-primary">{{ $status }}</span></p>
+                            <div class="data-label">THI kandang</div>
+                            <div class="data-value">{{ $thi !== null ? number_format($thi, 2, ',', '.') : 'N/A' }}</div>
+                            <span class="data-status">{{ $status }}</span>
                         </div>
                     </div>
-                </div>
+                </article>
             </div>
         </div>
+        </section>
 
 
         {{-- Ini data Outdoor --}}
@@ -218,70 +352,89 @@
 
 
 
-        {{-- Informasi Data Terbaru --}}
-        <div class="row">
-            <div class="col-lg-4">
-                <div class="card">
-                    <h3>Tanggal Dan Waktu</h3>
-                    <h4>{{ now()->translatedFormat('l, d M Y') }}</h4>
-                    <h5>{{ now()->translatedFormat('H:i:s') }}</h5>
+        <section class="mb-4" aria-labelledby="latestDataHeading">
+            <div class="section-heading">
+                <div>
+                    <p class="section-kicker">Ringkasan pemantauan</p>
+                    <h3 class="section-title" id="latestDataHeading">Informasi Data Terbaru</h3>
                 </div>
+                <span class="section-badge"><i class="bi bi-arrow-repeat"></i> Diperbarui {{ now()->format('H:i') }}</span>
             </div>
-            <div class="col-lg-8">
-                <div class="card">
-                    <div class="row">
-                        <div class="col-lg-6">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h3>Informasi Data Kandang</h3>
-                                </div>
-                                <div class="card-body">
-                                    <div class="row">
-                                        <div class="card">
-                                            <h5>Suhu</h5>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="card">
-                                            <h5>Kelembapan</h5>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="card">
-                                            <h5>THI</h5>
-                                        </div>
-                                    </div>
-                                </div>
+            <div class="row g-3 align-items-stretch">
+                <div class="col-lg-3">
+                    <article class="data-panel data-panel--lavender">
+                        <div class="data-panel-header">
+                            <div class="data-icon data-icon--lavender"><i class="bi bi-calendar2-week fs-4"></i></div>
+                            <div>
+                                <div class="data-label">Tanggal pemantauan</div>
+                                <div class="data-value data-value--compact">{{ now()->translatedFormat('l, d M Y') }}</div>
+                                <div class="data-helper">Pukul {{ now()->format('H:i:s') }}</div>
                             </div>
                         </div>
-                        <div class="col-lg-6">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h3>Informasi Data Lingkungan</h3>
-                                </div>
-                                 <div class="card-body">
-                                    <div class="row">
-                                        <div class="card">
-                                            <h5>Suhu</h5>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="card">
-                                            <h5>Kelembapan</h5>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="card">
-                                            <h5>Kondisi Cuaca</h5>
-                                        </div>
+                    </article>
+                </div>
+                <div class="col-lg-9">
+                    <div class="row g-3 align-items-stretch">
+                        <div class="col-md-6">
+                            <article class="source-panel source-panel--indoor">
+                                <div class="data-panel-header">
+                                    <div class="data-icon data-icon--peach"><i class="bi bi-house-heart fs-4"></i></div>
+                                    <div>
+                                        <div class="data-label">Pembacaan sensor</div>
+                                        <h4 class="section-title">Data Kandang</h4>
                                     </div>
                                 </div>
-                            </div>
+                                <div class="source-values">
+                                    <div class="source-value">
+                                        <span class="source-value-label">Suhu</span>
+                                        <strong>{{ number_format($suhu, 1, ',', '.') }}°C</strong>
+                                    </div>
+                                    <div class="source-value">
+                                        <span class="source-value-label">Kelembapan</span>
+                                        <strong>{{ number_format($kelembapan, 1, ',', '.') }}%</strong>
+                                    </div>
+                                    <div class="source-value">
+                                        <span class="source-value-label">THI</span>
+                                        <strong>{{ $thi !== null ? number_format($thi, 2, ',', '.') : 'N/A' }}</strong>
+                                    </div>
+                                    <div class="source-value">
+                                        <span class="source-value-label">Status</span>
+                                        <strong>{{ $status }}</strong>
+                                    </div>
+                                </div>
+                                <div class="data-helper mt-3">Pembaruan sensor: {{ $last_update }}</div>
+                            </article>
+                        </div>
+                        <div class="col-md-6">
+                            <article class="source-panel source-panel--outdoor">
+                                <div class="data-panel-header">
+                                    <div class="data-icon data-icon--blue"><i class="bi bi-cloud-sun fs-4"></i></div>
+                                    <div>
+                                        <div class="data-label">OpenWeather</div>
+                                        <h4 class="section-title">Data Lingkungan</h4>
+                                    </div>
+                                </div>
+                                <div class="source-values">
+                                    <div class="source-value">
+                                        <span class="source-value-label">Suhu luar</span>
+                                        <strong>{{ $outdoor ? number_format($outdoor->suhu, 1, ',', '.').'°C' : '—' }}</strong>
+                                    </div>
+                                    <div class="source-value">
+                                        <span class="source-value-label">Kelembapan</span>
+                                        <strong>{{ $outdoor ? number_format($outdoor->kelembapan, 1, ',', '.').'%' : '—' }}</strong>
+                                    </div>
+                                    <div class="source-value source-value--wide">
+                                        <span class="source-value-label">Kondisi cuaca</span>
+                                        <strong>{{ $outdoor?->status_cuaca ?? 'Belum tersedia' }}</strong>
+                                    </div>
+                                </div>
+                                <div class="data-helper mt-3">Pembaruan cuaca: {{ $outdoor?->created_at?->diffForHumans() ?? 'belum tersedia' }}</div>
+                            </article>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </section>
 
 
         {{-- Ini status kelinci --}}
