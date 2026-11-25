@@ -38,9 +38,14 @@
             font-weight: 700;
         }
         .muted-small{color: #6b7280;font-size:0.9rem}
-        .messages-box{height: 260px; overflow:auto; background: rgba(255,255,255,0.7); border-radius:10px; padding:12px}
+        .messages-box{height:260px;overflow-y:auto;overscroll-behavior-y:contain;background:rgba(255,255,255,0.7);border-radius:10px;padding:12px}
         .msg-user{background: #fff4f0; padding:8px 12px; border-radius:12px; display:inline-block}
         .msg-ai{background: #f0f9ff; padding:8px 12px; border-radius:12px; display:inline-block}
+        .msg-ai p:last-child,.msg-ai ul:last-child,.msg-ai ol:last-child{margin-bottom:0}
+        .msg-ai h3,.msg-ai h4{font-size:1rem;font-weight:700;margin:0 0 .5rem}
+        .msg-ai ul,.msg-ai ol{padding-left:1.25rem;margin-bottom:.6rem}
+        .msg-ai li+li{margin-top:.2rem}
+        .msg-ai code{background:rgba(255,255,255,.7);padding:.1rem .25rem;border-radius:4px}
         .form-floating textarea{min-height:110px}
         .status-column{
             display: flex;
@@ -55,10 +60,21 @@
             flex-direction: column;
         }
         .chat-card .messages-box{
-            flex: 1;
-            height: auto;
+            flex: 0 1 420px;
+            height: 420px;
+            max-height: 55vh;
             min-height: 260px;
         }
+        .chat-scroll-latest{
+            position:absolute;
+            z-index:1;
+            bottom:1.75rem;
+            left:50%;
+            transform:translateX(-50%);
+            border-radius:999px;
+            box-shadow:0 3px 12px rgba(13,38,59,.18);
+        }
+        .chat-scroll-latest[hidden]{display:none}
         @media (max-width:767px){
             .metric-value{font-size:1.6rem}
         }
@@ -84,7 +100,7 @@
             </div>
         </div>
 
-        {{-- //Ini Data --}}
+        {{-- Informasi Data Lama --}}
         <div class="row mb-4 g-4 align-items-stretch">
             <div class="col-lg-3">
                 <div class="card metric-card p-3" style="background: linear-gradient(180deg,var(--pastel-3), #ffc2c2)">
@@ -102,7 +118,7 @@
                     <div class="d-flex align-items-center">
                         <div class="me-3 display-6 text-warning"><i class="bi bi-thermometer-sun"></i></div>
                         <div>
-                            <div class=""><h5>Suhu Lingkungan</h5></div>
+                            <div class=""><h5>Suhu Kandang</h5></div>
                             <div class="metric-value">{{ $suhu }}°C</div>
                             <div class="muted-small">Sensor terakhir: {{ $last_update }}</div>
                         </div>
@@ -114,7 +130,7 @@
                     <div class="d-flex align-items-center">
                         <div class="me-3 display-6 text-info"><i class="bi bi-moisture"></i></div>
                         <div>
-                            <div class=""><h5>Kelembapan</h5></div>
+                            <div class=""><h5>Kelembapan Kandang</h5></div>
                             <div class="metric-value">{{ $kelembapan }}%</div>
                             <div class="muted-small">Sensor terakhir: {{ $last_update }}</div>
                         </div>
@@ -126,7 +142,7 @@
                     <div class="d-flex align-items-center">
                         <div class="me-3 display-6 text-info"><i class="bi bi-clipboard-data"></i></div>
                         <div>
-                            <div class=""><h4>THI Index</h4></div>
+                            <div class=""><h4>THI Kandang</h4></div>
                             <div class="metric-value">{{ $thi ? round($thi, 2) : 'N/A' }}</div>
                             <p class="mb-0"><span class="badge bg-primary">{{ $status }}</span></p>
                         </div>
@@ -134,6 +150,139 @@
                 </div>
             </div>
         </div>
+
+
+        {{-- Ini data Outdoor --}}
+        <div class="row mb-4 g-4 align-items-stretch">
+            @if($outdoor_error)
+                <div class="col-12">
+                    <div class="alert alert-warning mb-0" role="alert">{{ $outdoor_error }}</div>
+                </div>
+            @endif
+            <div class="col-lg-3">
+                <div class="card metric-card p-3" style="background: linear-gradient(180deg,var(--pastel-3), #ffc2c2)">
+                    <div class="d-flex align-items-center">
+                        <div class="me-3 mt-4 display-6 text-danger"><i class="bi bi-clock"></i></div>
+                        <div>
+                            <div class=""><h5>Update Cuaca</h5></div>
+                            <h5 class="mt-3">{{ $outdoor?->created_at?->format('d M Y H:i') ?? '—' }}</h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3">
+                <div class="card metric-card p-3" style="background: linear-gradient(180deg,var(--pastel-3), #fff)">
+                    <div class="d-flex align-items-center">
+                        <div class="me-3 display-6 text-warning"><i class="bi bi-thermometer-sun"></i></div>
+                        <div>
+                            <div class=""><h5>Suhu Lingkungan</h5></div>
+                            <div class="metric-value">{{ $outdoor ? number_format($outdoor->suhu, 1, ',', '.') : '—' }}{{ $outdoor ? '°C' : '' }}</div>
+                            @if($selisih_suhu === null)
+                                <div class="muted-small">Perbandingan sensor belum tersedia</div>
+                            @elseif($selisih_suhu > 0)
+                                <div class="muted-small">Kandang lebih panas {{ number_format($selisih_suhu, 1, ',', '.') }}°C</div>
+                            @elseif($selisih_suhu < 0)
+                                <div class="muted-small">Luar lebih panas {{ number_format(abs($selisih_suhu), 1, ',', '.') }}°C</div>
+                            @else
+                                <div class="muted-small">Suhu kandang dan luar serupa</div>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3">
+                <div class="card metric-card p-3" style="background: linear-gradient(180deg,var(--pastel-2), #fff)">
+                    <div class="d-flex align-items-center">
+                        <div class="me-3 display-6 text-info"><i class="bi bi-moisture"></i></div>
+                        <div>
+                            <div class=""><h5>Kelembapan Lingkungan</h5></div>
+                            <div class="metric-value">{{ $outdoor ? number_format($outdoor->kelembapan, 1, ',', '.') : '—' }}{{ $outdoor ? '%' : '' }}</div>
+                            <div class="muted-small">OpenWeather: {{ $outdoor?->created_at?->diffForHumans() ?? 'belum tersedia' }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3">
+                <div class="card metric-card p-3" style="background: linear-gradient(180deg,var(--pastel-1), #c1e3ff)">
+                    <div class="d-flex align-items-center">
+                        <div class="me-3 display-6 text-info"><i class="bi bi-clipboard-data"></i></div>
+                        <div>
+                            <div class=""><h4>Kondisi Cuaca</h4></div>
+                            <div class="metric-value">{{ $outdoor?->status_cuaca ?? '—' }}</div>
+                            <div class="muted-small">Data dari OpenWeather</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+        {{-- Informasi Data Terbaru --}}
+        <div class="row">
+            <div class="col-lg-4">
+                <div class="card">
+                    <h3>Tanggal Dan Waktu</h3>
+                    <h4>{{ now()->translatedFormat('l, d M Y') }}</h4>
+                    <h5>{{ now()->translatedFormat('H:i:s') }}</h5>
+                </div>
+            </div>
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3>Informasi Data Kandang</h3>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="card">
+                                            <h5>Suhu</h5>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="card">
+                                            <h5>Kelembapan</h5>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="card">
+                                            <h5>THI</h5>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3>Informasi Data Lingkungan</h3>
+                                </div>
+                                 <div class="card-body">
+                                    <div class="row">
+                                        <div class="card">
+                                            <h5>Suhu</h5>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="card">
+                                            <h5>Kelembapan</h5>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="card">
+                                            <h5>Kondisi Cuaca</h5>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
 
         {{-- Ini status kelinci --}}
         <div class="row g-4 align-items-stretch">
@@ -202,19 +351,20 @@
                                 Saran AI
                             </button>
                         </div>
-                        <div class="messages-box mb-3" id="messages">
-                        {{-- <div class="mb-2"><small class="text-muted">01:23</small><div class="mt-1 msg-ai">Halo, apa yang bisa saya bantu?</div></div>
-                        <div class="mb-2 text-end"><small class="text-muted">01:24</small><div class="mt-1 msg-user">Berikan saya saran untuk mendinginkan kelinci?</div></div>
-                        <div class="mb-2"><small class="text-muted">01:24</small><div class="mt-1 msg-ai">Anda bisa memasang kipas angin di kandang untuk meningkatkan sirkulasi udara.</div></div> --}}
-                    </div>
-
-                    <form id="chatForm">
-                        <div class="input-group">
-                            <input type="text" id="chatInput" class="form-control" placeholder="Tanyakan ke AI atau tinggalkan catatan...">
-                            <button class="btn btn-primary" type="submit">Kirim</button>
+                        <div class="position-relative mb-3">
+                            <div class="messages-box" id="messages" role="log" aria-label="Riwayat chat"></div>
+                            <button class="btn btn-light btn-sm chat-scroll-latest" id="scrollToLatest" type="button" aria-label="Lompat ke pesan terbaru" aria-controls="messages" hidden>
+                                <i class="bi bi-arrow-down" aria-hidden="true"></i>
+                                Pesan terbaru
+                            </button>
                         </div>
-                    </form>
-            </div>
+                        <form id="chatForm">
+                            <div class="input-group">
+                                <input type="text" id="chatInput" class="form-control" placeholder="Tanyakan tentang perawatan kelinci..." maxlength="4000" required>
+                                <button class="btn btn-primary" type="submit">Kirim</button>
+                            </div>
+                        </form>
+                    </div>
         </div>
 
     </div>
@@ -224,13 +374,17 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
     <script>
-        // Small demo JS to show local chat interactions and realtime clock in header
+        // Keep the dashboard clock and restore this browser tab's active chat.
         (function(){
             const chatForm = document.getElementById('chatForm');
             const chatInput = document.getElementById('chatInput');
             const messages = document.getElementById('messages');
+            const scrollToLatestButton = document.getElementById('scrollToLatest');
             const clock = document.getElementById('realtimeClock');
             const askAI = document.getElementById('askAI');
+            const sendButton = chatForm.querySelector('button[type="submit"]');
+            let conversationId = sessionStorage.getItem('rabbitChatConversationId');
+            const csrfToken = '{{ csrf_token() }}';
 
             function formatDateTime(date) {
                 return date.toLocaleString('id-ID', {
@@ -250,25 +404,41 @@
                 }
             }
 
+            function isNearLatestMessage() {
+                return messages.scrollHeight - messages.scrollTop - messages.clientHeight < 64;
+            }
+
+            function updateScrollToLatestButton() {
+                scrollToLatestButton.hidden = messages.scrollHeight <= messages.clientHeight || isNearLatestMessage();
+            }
+
+            function scrollToLatest(behavior = 'auto') {
+                messages.scrollTo({
+                    top: messages.scrollHeight,
+                    behavior: behavior
+                });
+                scrollToLatestButton.hidden = true;
+            }
+
+            messages.addEventListener('scroll', updateScrollToLatestButton);
+            scrollToLatestButton.addEventListener('click', () => scrollToLatest('smooth'));
+
 
             askAI.addEventListener('click', async function () {
-
-                appendMessage(
+                askAI.disabled = true;
+                const pending = appendMessage(
                     'Mohon tunggu, AI sedang menganalisa kondisi kandang...',
                     'ai'
                 );
-
                 try {
-
                     const response = await fetch(
                         '/ai-recommendation',
                         {
                             method: 'POST',
                             headers: {
-                                'Content-Type':
-                                    'application/json',
-                                'X-CSRF-TOKEN':
-                                    '{{ csrf_token() }}'
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': csrfToken
                             }
                         }
                     );
@@ -291,20 +461,22 @@
                                    data.sensor_data.updated_at + '</small>';
                     }
 
-                    appendMessage(message, 'ai');
+                    appendMessage(message, 'ai', true);
 
                 } catch(error) {
-
                     appendMessage(
-                        '❌ Gagal: ' + error.message,
+                        'Gagal: ' + error.message,
                         'ai'
                     );
-
                     console.error('AI Error:', error);
+                } finally {
+                    pending.remove();
+                    askAI.disabled = false;
                 }
             });
 
-            function appendMessage(content, who){
+            function appendMessage(content, who, allowHtml = false){
+                const shouldFollow = who === 'user' || isNearLatestMessage();
                 const wrapper = document.createElement('div');
                 const time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
                 const small = document.createElement('small');
@@ -312,25 +484,198 @@
                 small.textContent = time;
                 const msg = document.createElement('div');
                 msg.className = who === 'user' ? 'msg-user mt-1' : 'msg-ai mt-1';
-                msg.innerHTML = content;
+                if (allowHtml) {
+                    msg.innerHTML = content;
+                } else if (who === 'ai') {
+                    renderMarkdown(msg, content);
+                } else {
+                    msg.textContent = content;
+                }
                 wrapper.appendChild(small);
                 wrapper.className = who === 'user' ? 'text-end mb-2' : 'mb-2';
                 wrapper.appendChild(msg);
                 messages.appendChild(wrapper);
-                messages.scrollTop = messages.scrollHeight;
+                if (shouldFollow) {
+                    scrollToLatest();
+                } else {
+                    updateScrollToLatestButton();
+                }
+                return wrapper;
             }
 
-            chatForm.addEventListener('submit', function(e){
+            function renderMarkdown(container, markdown) {
+                const lines = String(markdown).replace(/\r\n?/g, '\n').split('\n');
+                let paragraphLines = [];
+                let listStack = [];
+
+                function flushParagraph() {
+                    if (paragraphLines.length === 0) return;
+                    const paragraph = document.createElement('p');
+                    appendInlineMarkdown(paragraph, paragraphLines.join(' '));
+                    container.appendChild(paragraph);
+                    paragraphLines = [];
+                }
+
+                function flushList() {
+                    listStack = [];
+                }
+
+                function getList(indent, type) {
+                    if (listStack.length && indent > listStack[listStack.length - 1].indent) {
+                        const parentItem = listStack[listStack.length - 1].lastItem;
+                        const element = document.createElement(type);
+                        parentItem.appendChild(element);
+                        const list = { indent, type, element, lastItem: null };
+                        listStack.push(list);
+                        return list;
+                    }
+
+                    while (listStack.length && listStack[listStack.length - 1].indent > indent) {
+                        listStack.pop();
+                    }
+
+                    const current = listStack[listStack.length - 1];
+                    if (current && current.indent === indent && current.type === type) {
+                        return current;
+                    }
+
+                    const parent = current && current.indent === indent
+                        ? current.element.parentNode
+                        : (current ? current.lastItem : container);
+                    if (current && current.indent === indent) {
+                        listStack.pop();
+                    }
+
+                    const element = document.createElement(type);
+                    parent.appendChild(element);
+                    const list = { indent, type, element, lastItem: null };
+                    listStack.push(list);
+                    return list;
+                }
+
+                lines.forEach((line) => {
+                    if (!line.trim()) {
+                        flushParagraph();
+                        flushList();
+                        return;
+                    }
+
+                    const heading = line.match(/^\s{0,3}(#{1,3})\s+(.+)$/);
+                    if (heading) {
+                        flushParagraph();
+                        flushList();
+                        const element = document.createElement(heading[1].length === 1 ? 'h3' : 'h4');
+                        appendInlineMarkdown(element, heading[2]);
+                        container.appendChild(element);
+                        return;
+                    }
+
+                    const item = line.match(/^(\s{0,8})([-*+]|\d+[.)])\s+(.+)$/);
+                    if (item) {
+                        flushParagraph();
+                        const indent = item[1].replace(/\t/g, '    ').length;
+                        const type = /^\d/.test(item[2]) ? 'ol' : 'ul';
+                        const list = getList(indent, type);
+                        const listItem = document.createElement('li');
+                        appendInlineMarkdown(listItem, item[3]);
+                        list.element.appendChild(listItem);
+                        list.lastItem = listItem;
+                        return;
+                    }
+
+                    flushList();
+                    paragraphLines.push(line.trim());
+                });
+
+                flushParagraph();
+            }
+
+            function appendInlineMarkdown(container, text) {
+                const tokens = /(\*\*[^*]+\*\*|__[^_]+__|`[^`]+`|\*[^*]+\*|_[^_]+_)/g;
+                let lastIndex = 0;
+                let match;
+
+                while ((match = tokens.exec(text)) !== null) {
+                    container.appendChild(document.createTextNode(text.slice(lastIndex, match.index)));
+
+                    const token = match[0];
+                    const isBold = token.startsWith('**') || token.startsWith('__');
+                    const isCode = token.startsWith('`');
+                    const tag = isBold ? 'strong' : (isCode ? 'code' : 'em');
+                    const markerLength = isBold ? 2 : 1;
+                    const element = document.createElement(tag);
+                    element.textContent = token.slice(markerLength, -markerLength);
+                    container.appendChild(element);
+                    lastIndex = match.index + token.length;
+                }
+
+                container.appendChild(document.createTextNode(text.slice(lastIndex)));
+            }
+
+            async function restoreConversation() {
+                if (!conversationId) return;
+
+                try {
+                    const response = await fetch('/ai-chat/' + encodeURIComponent(conversationId), {
+                        headers: { 'Accept': 'application/json' }
+                    });
+                    if (response.status === 404) {
+                        sessionStorage.removeItem('rabbitChatConversationId');
+                        conversationId = null;
+                        return;
+                    }
+                    if (!response.ok) throw new Error('Gagal memuat riwayat percakapan.');
+                    const data = await response.json();
+                    data.messages.forEach((message) => appendMessage(message.content, message.role === 'user' ? 'user' : 'ai'));
+                } catch (error) {
+                    appendMessage(error.message, 'ai');
+                    console.error('Chat history error:', error);
+                }
+            }
+
+            chatForm.addEventListener('submit', async function(e){
                 e.preventDefault();
                 const v = chatInput.value.trim();
                 if(!v) return;
                 appendMessage(v, 'user');
                 chatInput.value = '';
-                setTimeout(()=>{
-                    appendMessage('Terima kasih. Model sedang menganalisa, saran: turunkan suhu 2°C dan aktifkan mister selama 10 menit.', 'ai');
-                }, 800);
+                sendButton.disabled = true;
+                chatInput.disabled = true;
+                const pending = appendMessage('AI sedang menyiapkan jawaban...', 'ai');
+
+                try {
+                    const response = await fetch('/ai-chat', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken
+                        },
+                        body: JSON.stringify({
+                            message: v,
+                            conversation_id: conversationId
+                        })
+                    });
+                    const data = await response.json();
+                    if (!response.ok || !data.success) {
+                        throw new Error(data.message || 'Gagal mengirim pesan ke AI.');
+                    }
+
+                    conversationId = data.conversation_id;
+                    sessionStorage.setItem('rabbitChatConversationId', conversationId);
+                    appendMessage(data.reply, 'ai');
+                } catch(error) {
+                    appendMessage(error.message, 'ai');
+                    console.error('Chat error:', error);
+                } finally {
+                    pending.remove();
+                    sendButton.disabled = false;
+                    chatInput.disabled = false;
+                    chatInput.focus();
+                }
             });
 
+            restoreConversation();
             refreshClock();
             setInterval(refreshClock, 1000);
         })();
