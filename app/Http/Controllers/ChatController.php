@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\ChatConversation;
 use App\Models\ChatMessage;
 use App\Models\Sensor;
+use App\Services\EnvironmentContext;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -16,7 +17,7 @@ class ChatController extends Controller
 {
     private const MAX_CONTEXT_MESSAGES = 20;
 
-    public function store(Request $request)
+    public function store(Request $request, EnvironmentContext $environmentContext)
     {
         $validated = $request->validate([
             'message' => ['required', 'string', 'max:4000'],
@@ -55,7 +56,7 @@ class ChatController extends Controller
             ], 503);
         }
 
-        $systemPrompt = $this->systemPrompt();
+        $systemPrompt = $this->systemPrompt($environmentContext);
 
         try {
             $response = OpenAI::chat()->create([
@@ -133,24 +134,16 @@ class ChatController extends Controller
         return $request->session()->get('chat_session_key');
     }
 
-    private function systemPrompt(): string
+    private function systemPrompt(EnvironmentContext $environmentContext): string
     {
         $sensor = Sensor::query()->latest()->first();
-        $sensorContext = $sensor
-            ? sprintf(
-                'Data sensor kandang terakhir: suhu %s°C, kelembapan %s%%, THI %s, status %s.',
-                $sensor->temperature,
-                $sensor->humidity,
-                $sensor->thi === null ? 'tidak tersedia' : round($sensor->thi, 2),
-                $sensor->status
-            )
-            : 'Belum ada data sensor kandang.';
 
         return 'Anda adalah asisten berbahasa Indonesia yang membantu peternak kelinci '
             .'dengan informasi perawatan dan kondisi kandang. Berikan jawaban praktis, '
             .'jelas, dan berhati-hati; jangan mengklaim sebagai dokter hewan atau '
             .'menggantikan pemeriksaan profesional. Sarankan menghubungi dokter hewan '
             .'untuk kondisi darurat atau gejala serius. '
-            .$sensorContext;
+            ."Gunakan data kandang dan OpenWeather untuk membandingkan kondisi dalam dan luar.\n"
+            .$environmentContext->forSensor($sensor);
     }
 }

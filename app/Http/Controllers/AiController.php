@@ -3,12 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Sensor;
-use Illuminate\Http\Request;
+use App\Services\EnvironmentContext;
 use OpenAI\Laravel\Facades\OpenAI;
 
 class AiController extends Controller
 {
-    public function recommendation()
+    public function recommendation(EnvironmentContext $environmentContext)
     {
         $latestSensor = Sensor::latest()->first();
 
@@ -21,11 +21,8 @@ class AiController extends Controller
 
         try {
             $prompt = "Anda adalah asisten kesehatan kelinci yang berpengalaman.\n\n" .
-                "Data kandang:\n" .
-                "- Suhu: {$latestSensor->temperature}°C\n" .
-                "- Kelembapan: {$latestSensor->humidity}%\n" .
-                "- THI: " . round($latestSensor->thi, 2) . "\n" .
-                "- Status: {$latestSensor->status}\n\n" .
+                "Gunakan data kandang dan data OpenWeather berikut untuk membandingkan kondisi dalam dan luar:\n" .
+                $environmentContext->forSensor($latestSensor) . "\n\n" .
                 "Buat rekomendasi yang jelas dan praktis untuk peternak. RESPON HANYA DALAM BENTUK JSON VALID (TIDAK ADA TEKS LAIN DI LUAR JSON) dengan struktur:\n" .
                 "{\n" .
                 "  \"summary\": \"ringkasan singkat\",\n" .

@@ -139,6 +139,47 @@
         }
         .source-panel--indoor{background:linear-gradient(145deg,#fff4ed,#fffdfb)}
         .source-panel--outdoor{background:linear-gradient(145deg,#eef5ff,#fcfdff)}
+        .comparison-panel{
+            background:linear-gradient(145deg,#f3efff,#fff);
+            border:1px solid rgba(148,163,184,.18);
+            border-radius:18px;
+            height:100%;
+            padding:1rem;
+        }
+        .comparison-item + .comparison-item{
+            border-top:1px solid rgba(148,163,184,.2);
+            margin-top:.85rem;
+            padding-top:.85rem;
+        }
+        .comparison-label{color:#667085;font-size:.78rem;font-weight:600;margin-bottom:.3rem}
+        .comparison-result{color:#344054;font-size:.88rem;font-weight:700;line-height:1.35;overflow-wrap:anywhere}
+        .latest-data-card{
+            background:rgba(255,255,255,.62);
+            border:1px solid rgba(148,163,184,.18);
+            border-radius:22px;
+            box-shadow:0 10px 28px rgba(35,47,82,.07);
+            padding:1.25rem;
+        }
+        .latest-data-header{
+            align-items:center;
+            display:flex;
+            gap:1rem;
+            justify-content:space-between;
+            margin-bottom:1.1rem;
+        }
+        .latest-time-card{
+            align-items:center;
+            background:linear-gradient(145deg,#f1edff,#fcfbff);
+            border:1px solid rgba(148,163,184,.18);
+            border-radius:16px;
+            display:flex;
+            gap:.75rem;
+            justify-content:flex-end;
+            max-width:320px;
+            padding:.7rem 1rem;
+        }
+        .latest-time-details{text-align:right}
+        .latest-time-value{color:#344054;font-size:.95rem;font-weight:700}
         .source-values{
             display:grid;
             gap:.65rem;
@@ -196,12 +237,17 @@
             box-shadow:0 3px 12px rgba(13,38,59,.18);
         }
         .chat-scroll-latest[hidden]{display:none}
-        @media (max-width:767px){
+        @media (max-width:991px){
             .metric-value{font-size:1.6rem}
             .section-heading{align-items:flex-start;flex-direction:column}
+            .latest-data-header{align-items:stretch;flex-direction:column}
+            .latest-time-card{align-self:flex-end;max-width:100%}
+        }
+        @media (max-width:767px){
             .data-panel{padding:1rem}
             .source-panel{padding:1rem}
             .data-value{font-size:1.6rem}
+            .latest-time-card{align-self:stretch}
         }
     </style>
 </head>
@@ -225,7 +271,7 @@
             </div>
         </div>
 
-        <section class="mb-4" aria-labelledby="oldDataHeading">
+        {{-- <section class="mb-4" aria-labelledby="oldDataHeading">
             <div class="section-heading">
                 <div>
                     <p class="section-kicker">Pemantauan Kandang</p>
@@ -283,11 +329,11 @@
                 </article>
             </div>
         </div>
-        </section>
+        </section> --}}
 
 
         {{-- Ini data Outdoor --}}
-        <div class="row mb-4 g-4 align-items-stretch">
+        {{-- <div class="row mb-4 g-4 align-items-stretch">
             @if($outdoor_error)
                 <div class="col-12">
                     <div class="alert alert-warning mb-0" role="alert">{{ $outdoor_error }}</div>
@@ -348,42 +394,35 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div> --}}
 
 
 
-        <section class="mb-4" aria-labelledby="latestDataHeading">
-            <div class="section-heading">
+        <section class="latest-data-card mb-4" aria-labelledby="latestDataHeading">
+                    <div class="latest-data-header">
                 <div>
                     <p class="section-kicker">Ringkasan pemantauan</p>
                     <h3 class="section-title" id="latestDataHeading">Informasi Data Terbaru</h3>
                 </div>
-                <span class="section-badge"><i class="bi bi-arrow-repeat"></i> Diperbarui {{ now()->format('H:i') }}</span>
-            </div>
-            <div class="row g-3 align-items-stretch">
-                <div class="col-lg-3">
-                    <article class="data-panel data-panel--lavender">
-                        <div class="data-panel-header">
+                        <div class="latest-time-card">
                             <div class="data-icon data-icon--lavender"><i class="bi bi-calendar2-week fs-4"></i></div>
-                            <div>
-                                <div class="data-label">Tanggal pemantauan</div>
-                                <div class="data-value data-value--compact">{{ now()->translatedFormat('l, d M Y') }}</div>
-                                <div class="data-helper">Pukul {{ now()->format('H:i:s') }}</div>
+                            <div class="latest-time-details">
+                                <div class="data-label">Tanggal & waktu</div>
+                                <div class="latest-time-value">{{ now()->translatedFormat('l, d M Y') }}</div>
+                                <div class="data-helper">{{ now()->format('H:i:s') }}</div>
                             </div>
                         </div>
-                    </article>
-                </div>
-                <div class="col-lg-9">
+                    </div>
                     <div class="row g-3 align-items-stretch">
-                        <div class="col-md-6">
+                        <div class="col-lg-5">
                             <article class="source-panel source-panel--indoor">
                                 <div class="data-panel-header">
                                     <div class="data-icon data-icon--peach"><i class="bi bi-house-heart fs-4"></i></div>
                                     <div>
                                         <div class="data-label">Pembacaan sensor</div>
                                         <h4 class="section-title">Data Kandang</h4>
-                                    </div>
-                                </div>
+                            </div>
+                        </div>
                                 <div class="source-values">
                                     <div class="source-value">
                                         <span class="source-value-label">Suhu</span>
@@ -405,13 +444,14 @@
                                 <div class="data-helper mt-3">Pembaruan sensor: {{ $last_update }}</div>
                             </article>
                         </div>
-                        <div class="col-md-6">
+
+                        <div class="col-lg-5">
                             <article class="source-panel source-panel--outdoor">
                                 <div class="data-panel-header">
                                     <div class="data-icon data-icon--blue"><i class="bi bi-cloud-sun fs-4"></i></div>
                                     <div>
                                         <div class="data-label">OpenWeather</div>
-                                        <h4 class="section-title">Data Lingkungan</h4>
+                                        <h4 class="section-title">Data Cuaca</h4>
                                     </div>
                                 </div>
                                 <div class="source-values">
@@ -428,12 +468,46 @@
                                         <strong>{{ $outdoor?->status_cuaca ?? 'Belum tersedia' }}</strong>
                                     </div>
                                 </div>
+                                @if($outdoor_error)
+                                    <div class="alert alert-warning mt-3 mb-0" role="alert">{{ $outdoor_error }}</div>
+                                @endif
                                 <div class="data-helper mt-3">Pembaruan cuaca: {{ $outdoor?->created_at?->diffForHumans() ?? 'belum tersedia' }}</div>
                             </article>
                         </div>
+                                                <div class="col-lg-2">
+                            <article class="comparison-panel">
+                                <h4 class="section-title mb-3">Perbandingan</h4>
+                                <div class="comparison-item">
+                                    <div class="comparison-label"><i class="bi bi-thermometer-half me-1"></i>Suhu</div>
+                                    <div class="comparison-result">
+                                        @if($selisih_suhu === null)
+                                            Belum tersedia
+                                        @elseif($selisih_suhu > 0)
+                                            Kandang lebih panas {{ number_format($selisih_suhu, 1, ',', '.') }}°C
+                                        @elseif($selisih_suhu < 0)
+                                            Luar lebih panas {{ number_format(abs($selisih_suhu), 1, ',', '.') }}°C
+                                        @else
+                                            Suhu sama
+                                        @endif
+                                    </div>
+                                </div>
+                                <div class="comparison-item">
+                                    <div class="comparison-label"><i class="bi bi-moisture me-1"></i>Kelembapan</div>
+                                    <div class="comparison-result">
+                                        @if($selisih_kelembapan === null)
+                                            Belum tersedia
+                                        @elseif($selisih_kelembapan > 0)
+                                            Kandang lebih lembap {{ number_format($selisih_kelembapan, 1, ',', '.') }}%
+                                        @elseif($selisih_kelembapan < 0)
+                                            Luar lebih lembap {{ number_format(abs($selisih_kelembapan), 1, ',', '.') }}%
+                                        @else
+                                            Kelembapan sama
+                                        @endif
+                                    </div>
+                                </div>
+                            </article>
+                        </div>
                     </div>
-                </div>
-            </div>
         </section>
 
 

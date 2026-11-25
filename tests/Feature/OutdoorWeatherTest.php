@@ -43,14 +43,18 @@ class OutdoorWeatherTest extends TestCase
 
         $this->get('/')
             ->assertOk()
-            ->assertSee('Informasi Data Lama')
             ->assertSee('Informasi Data Terbaru')
             ->assertSee('Data Kandang')
-            ->assertSee('Data Lingkungan')
+            ->assertSee('Data Cuaca')
+            ->assertSee('Tanggal & waktu', false)
+            ->assertSee('col-lg-5', false)
+            ->assertSee('col-lg-2', false)
+            ->assertSee('Perbandingan')
             ->assertSee('31,2°C')
             ->assertSee('68,5%')
             ->assertSee('hujan ringan')
-            ->assertSee('Kandang lebih panas 2,3°C');
+            ->assertSee('Kandang lebih panas 2,3°C')
+            ->assertSee('Kandang lebih lembap 1,5%');
 
         $this->get('/')->assertOk();
 
@@ -90,8 +94,44 @@ class OutdoorWeatherTest extends TestCase
 
         $this->get('/')
             ->assertOk()
+            ->assertSee('Data Cuaca')
             ->assertSee('OpenWeather menolak API key.');
 
         $this->assertDatabaseCount('outdoors', 0);
+    }
+
+    public function test_dashboard_compares_when_outdoor_is_hotter_and_more_humid(): void
+    {
+        config([
+            'services.openweather.key' => 'test-key',
+            'services.openweather.lat' => '-6.2',
+            'services.openweather.lon' => '106.8',
+        ]);
+
+        Sensor::query()->create([
+            'temperature' => 30,
+            'humidity' => 60,
+            'thi' => 28,
+            'status' => 'Normal',
+        ]);
+
+        Http::fake([
+            'https://api.openweathermap.org/data/4.0/onecall/timeline/15min*' => Http::response([
+                'data' => [[
+                    'dt' => now()->timestamp,
+                    'temp' => 32,
+                    'humidity' => 70,
+                    'weather' => [[
+                        'main' => 'Clouds',
+                        'description' => 'berawan',
+                    ]],
+                ]],
+            ]),
+        ]);
+
+        $this->get('/')
+            ->assertOk()
+            ->assertSee('Luar lebih panas 2,0°C')
+            ->assertSee('Luar lebih lembap 10,0%');
     }
 }

@@ -51,6 +51,9 @@ class DashboardController extends Controller
         $selisih_suhu = $latestSensor && $outdoor
             ? round($latestSensor->temperature - $outdoor->suhu, 1)
             : null;
+        $selisih_kelembapan = $latestSensor && $outdoor
+            ? round($latestSensor->humidity - $outdoor->kelembapan, 1)
+            : null;
 
         return view('welcome', [
             'suhu' => $suhu,
@@ -63,6 +66,7 @@ class DashboardController extends Controller
             'outdoor' => $outdoor,
             'outdoor_error' => $outdoor_error,
             'selisih_suhu' => $selisih_suhu,
+            'selisih_kelembapan' => $selisih_kelembapan,
         ]);
     }
 }
